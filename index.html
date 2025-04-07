@@ -181,15 +181,26 @@
       }
     }
     function playTone() {
+      if (oscillator) {
+        // 若已在播放，先停止再重啟（避免堆疊）
+        oscillator.stop();
+        oscillator.disconnect();
+        oscillator = null;
+      }
+
       initAudioContext();
       const frequency = parseInt(frequencySelect.value, 10);
+
       oscillator = audioContext.createOscillator();
       oscillator.type = 'sine';
       oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
       oscillator.connect(audioContext.destination);
       oscillator.start();
+
       wave.classList.add('playing');
       statusDisplay.textContent = `狀態：播放中（${frequency} Hz）`;
+
       const timerMinutes = parseInt(timerSelect.value, 10);
       if (timerMinutes > 0) {
         stopTimeout = setTimeout(() => {
@@ -197,6 +208,7 @@
         }, timerMinutes * 60 * 1000);
       }
     }
+
     function stopTone() {
       if (oscillator) {
         oscillator.stop();
